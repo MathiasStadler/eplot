@@ -135,20 +135,18 @@ impl Tplot {
             let is_hovered = rect.contains(ui.input(|i| i.pointer.hover_pos().unwrap_or_default()));
 
             // Handle drops
-            if is_being_dragged {
-                if is_hovered {
-                    // Show a stronger highlight when hovering during drag
-                    ui.painter()
-                        .rect_stroke(rect, 0.0, Stroke::new(3.0, Color32::GREEN));
+            if is_being_dragged && is_hovered {
+                // Show a stronger highlight when hovering during drag
+                ui.painter()
+                    .rect_stroke(rect, 0.0, Stroke::new(3.0, Color32::GREEN));
 
-                    // Check for drops
-                    if ui.input(|i| i.pointer.any_released()) {
-                        if let Some(signal_idx) = self.dragged_signal.take() {
-                            plot.active_signals.push(ActiveSignal {
-                                signal_index: signal_idx,
-                                color: self.signals[signal_idx].color,
-                            });
-                        }
+                // Check for drops
+                if ui.input(|i| i.pointer.any_released()) {
+                    if let Some(signal_idx) = self.dragged_signal.take() {
+                        plot.active_signals.push(ActiveSignal {
+                            signal_index: signal_idx,
+                            color: self.signals[signal_idx].color,
+                        });
                     }
                 }
             }

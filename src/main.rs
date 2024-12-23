@@ -52,7 +52,7 @@ fn main() {
             .start(
                 canvas,
                 web_options,
-                Box::new(|cc| Ok(Box::new(eplot::PlotApp::new(cc)))),
+                Box::new(|cc| Ok(Box::new(eplot::TplotApp::new(cc)))),
             )
             .await;
 
