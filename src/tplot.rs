@@ -1,5 +1,12 @@
 use egui::{Color32, Frame, Response, Sense, Stroke, Vec2};
 use egui_plot::{Line, Plot, PlotPoints};
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+static PLOT_COUNTER: AtomicUsize = AtomicUsize::new(1);
+
+fn get_next_plot_number() -> usize {
+    PLOT_COUNTER.fetch_add(1, Ordering::Relaxed)
+}
 
 #[derive(Clone, Debug, PartialEq)]
 struct Signal {
@@ -24,7 +31,7 @@ struct PlotInstance {
 impl Default for PlotInstance {
     fn default() -> Self {
         Self {
-            title: "Plot 1".to_string(),
+            title: format!("Plot {}", get_next_plot_number()),
             height: 300.0,
             active_signals: Vec::new(),
         }
@@ -233,7 +240,6 @@ impl Tplot {
 
                 ui.separator();
                 if ui.button("Add Plot").clicked() {
-                    // let new_title = format!("Plot {}", self.plots.len() + 1);
                     self.plots.push(PlotInstance::default());
                 }
             });
