@@ -1,24 +1,12 @@
-use std::f64::consts::TAU;
-use std::ops::RangeInclusive;
-
-use egui::{
-    remap, vec2, Color32, ComboBox, NumExt, Pos2, Response, ScrollArea, Stroke, TextWrapMode, Vec2b,
-};
-
-use egui_plot::{
-    Arrows, AxisHints, Bar, BarChart, BoxElem, BoxPlot, BoxSpread, CoordinatesFormatter, Corner,
-    GridInput, GridMark, HLine, Legend, Line, LineStyle, MarkerShape, Plot, PlotImage, PlotPoint,
-    PlotPoints, PlotResponse, Points, Polygon, Text, VLine,
-};
-
-use crate::demos::lines::LineDemo;
-use crate::demos::markers::MarkerDemo;
-use crate::demos::legends::LegendDemo;
 use crate::demos::charts::ChartsDemo;
-use crate::demos::items::ItemsDemo;
-use crate::demos::interaction::InteractionDemo;
 use crate::demos::custom_axes::CustomAxesDemo;
+use crate::demos::interaction::InteractionDemo;
+use crate::demos::items::ItemsDemo;
+use crate::demos::legends::LegendDemo;
+use crate::demos::lines::LineDemo;
 use crate::demos::linked_axes::LinkedAxesDemo;
+use crate::demos::markers::MarkerDemo;
+use crate::tplot::Tplot;
 
 // ----------------------------------------------------------------------------
 
@@ -32,11 +20,12 @@ enum Panel {
     Interaction,
     CustomAxes,
     LinkedAxes,
+    Tplot,
 }
 
 impl Default for Panel {
     fn default() -> Self {
-        Self::Lines
+        Self::Tplot
     }
 }
 
@@ -52,6 +41,7 @@ pub struct PlotDemo {
     interaction_demo: InteractionDemo,
     custom_axes_demo: CustomAxesDemo,
     linked_axes_demo: LinkedAxesDemo,
+    tplot: Tplot,
     open_panel: Panel,
 }
 
@@ -83,6 +73,7 @@ impl PlotDemo {
             ui.selectable_value(&mut self.open_panel, Panel::Interaction, "Interaction");
             ui.selectable_value(&mut self.open_panel, Panel::CustomAxes, "Custom Axes");
             ui.selectable_value(&mut self.open_panel, Panel::LinkedAxes, "Linked Axes");
+            ui.selectable_value(&mut self.open_panel, Panel::Tplot, "Tplot");
         });
         ui.separator();
 
@@ -111,19 +102,9 @@ impl PlotDemo {
             Panel::LinkedAxes => {
                 self.linked_axes_demo.ui(ui);
             }
+            Panel::Tplot => {
+                self.tplot.ui(ui);
+            }
         }
     }
 }
-
-
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-
-
-// ----------------------------------------------------------------------------
-

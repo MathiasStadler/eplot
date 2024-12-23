@@ -1,15 +1,8 @@
-use std::f64::consts::TAU;
 use std::ops::RangeInclusive;
 
-use egui::{
-    remap, vec2, Color32, ComboBox, NumExt, Pos2, Response, ScrollArea, Stroke, TextWrapMode, Vec2b,
-};
+use egui::Response;
 
-use egui_plot::{
-    Arrows, AxisHints, Bar, BarChart, BoxElem, BoxPlot, BoxSpread, CoordinatesFormatter, Corner,
-    GridInput, GridMark, HLine, Legend, Line, LineStyle, MarkerShape, Plot, PlotImage, PlotPoint,
-    PlotPoints, PlotResponse, Points, Polygon, Text, VLine,
-};
+use egui_plot::{AxisHints, GridInput, GridMark, Line, Plot, PlotPoint, PlotPoints};
 
 #[derive(Default, PartialEq, serde::Deserialize, serde::Serialize)]
 pub(crate) struct CustomAxesDemo {}

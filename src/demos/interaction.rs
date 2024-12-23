@@ -1,15 +1,6 @@
-use std::f64::consts::TAU;
-use std::ops::RangeInclusive;
+use egui::{Color32, Response};
 
-use egui::{
-    remap, vec2, Color32, ComboBox, NumExt, Pos2, Response, ScrollArea, Stroke, TextWrapMode, Vec2b,
-};
-
-use egui_plot::{
-    Arrows, AxisHints, Bar, BarChart, BoxElem, BoxPlot, BoxSpread, CoordinatesFormatter, Corner,
-    GridInput, GridMark, HLine, Legend, Line, LineStyle, MarkerShape, Plot, PlotImage, PlotPoint,
-    PlotPoints, PlotResponse, Points, Polygon, Text, VLine,
-};
+use egui_plot::{Line, Plot, PlotPoint, PlotPoints, PlotResponse};
 
 #[derive(Default, PartialEq, serde::Deserialize, serde::Serialize)]
 pub(crate) struct InteractionDemo {}

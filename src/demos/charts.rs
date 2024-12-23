@@ -1,16 +1,6 @@
-use std::f64::consts::TAU;
-use std::ops::RangeInclusive;
+use egui::{Color32, Response, ScrollArea, Stroke, Vec2b};
 
-use egui::{
-    remap, vec2, Color32, ComboBox, NumExt, Pos2, Response, ScrollArea, Stroke, TextWrapMode, Vec2b,
-};
-
-use egui_plot::{
-    Arrows, AxisHints, Bar, BarChart, BoxElem, BoxPlot, BoxSpread, CoordinatesFormatter, Corner,
-    GridInput, GridMark, HLine, Legend, Line, LineStyle, MarkerShape, Plot, PlotImage, PlotPoint,
-    PlotPoints, PlotResponse, Points, Polygon, Text, VLine,
-};
-
+use egui_plot::{Bar, BarChart, BoxElem, BoxPlot, BoxSpread, Legend, Plot};
 
 #[derive(PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 enum Chart {
