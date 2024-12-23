@@ -1,4 +1,4 @@
-use egui::{Color32, Frame, Response, Sense, Stroke, Vec2};
+use egui::{Color32, Frame, Response, Sense, Stroke};
 use egui_plot::{Line, Plot, PlotPoints};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -26,6 +26,8 @@ struct PlotInstance {
     title: String,
     height: f32,
     active_signals: Vec<ActiveSignal>,
+    window_pos: Option<egui::Pos2>,
+    window_size: Option<egui::Vec2>,
 }
 
 impl Default for PlotInstance {
@@ -34,6 +36,8 @@ impl Default for PlotInstance {
             title: format!("Plot {}", get_next_plot_number()),
             height: 300.0,
             active_signals: Vec::new(),
+            window_pos: None,
+            window_size: None,
         }
     }
 }
@@ -77,116 +81,6 @@ impl Tplot {
         if self.plots.is_empty() {
             self.plots.push(PlotInstance::default());
         }
-    }
-
-    fn show_plot(&mut self, ui: &mut egui::Ui, index: usize) -> bool {
-        let mut should_remove = false;
-        let plot = &mut self.plots[index];
-
-        // Title bar frame
-        let title_height = 24.0;
-        Frame::none()
-            .stroke(Stroke::new(
-                1.0,
-                ui.visuals().widgets.noninteractive.bg_fill,
-            ))
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.set_min_height(title_height);
-                    ui.label(&plot.title);
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.button("✕").clicked() {
-                            should_remove = true;
-                        }
-                    });
-                });
-            });
-
-        // Check if something is being dragged
-        let is_being_dragged = self.dragged_signal.is_some();
-
-        // Create a frame around the plot that will be highlighted when dragging
-        let frame_stroke = if is_being_dragged {
-            Stroke::new(2.0, Color32::YELLOW)
-        } else {
-            Stroke::NONE
-        };
-
-        Frame::none().stroke(frame_stroke).show(ui, |ui| {
-            // Plot content with drop target
-            let plot_response = Plot::new(format!("plot_{}", index))
-                .height(plot.height)
-                .width(ui.available_width())
-                .allow_zoom(true)
-                .allow_drag(true)
-                .show_axes(true)
-                .show_grid(true)
-                .legend(egui_plot::Legend::default())
-                .show(ui, |plot_ui| {
-                    for active_signal in &plot.active_signals {
-                        let signal = &self.signals[active_signal.signal_index];
-                        plot_ui.line(
-                            Line::new(PlotPoints::from_explicit_callback(
-                                signal.data_fn,
-                                -5.0..5.0,
-                                200,
-                            ))
-                            .color(active_signal.color)
-                            .name(&signal.name),
-                        );
-                    }
-                });
-
-            // Make the plot area a drop target and check for hover
-            let rect = plot_response.response.rect;
-            let is_hovered = rect.contains(ui.input(|i| i.pointer.hover_pos().unwrap_or_default()));
-
-            // Handle drops
-            if is_being_dragged && is_hovered {
-                // Show a stronger highlight when hovering during drag
-                ui.painter()
-                    .rect_stroke(rect, 0.0, Stroke::new(3.0, Color32::GREEN));
-
-                // Check for drops
-                if ui.input(|i| i.pointer.any_released()) {
-                    if let Some(signal_idx) = self.dragged_signal.take() {
-                        plot.active_signals.push(ActiveSignal {
-                            signal_index: signal_idx,
-                            color: self.signals[signal_idx].color,
-                        });
-                    }
-                }
-            }
-        });
-
-        // Resize handle
-        let resize_id = ui.id().with(format!("resize_handle_{}", index));
-        let resize_rect = egui::Rect::from_min_size(
-            ui.min_rect().left_bottom() + Vec2::new(0.0, 2.0),
-            Vec2::new(ui.available_width(), 5.0),
-        );
-        let resize_response = ui.interact(resize_rect, resize_id, egui::Sense::drag());
-
-        if resize_response.dragged() {
-            plot.height = (plot.height + resize_response.drag_delta().y)
-                .max(100.0)
-                .min(ui.available_height());
-        }
-
-        // Draw resize handle
-        if resize_response.hovered() {
-            ui.painter()
-                .rect_filled(resize_rect, 0.0, ui.style().visuals.widgets.active.bg_fill);
-        } else {
-            ui.painter().rect_filled(
-                resize_rect,
-                0.0,
-                ui.style().visuals.widgets.inactive.bg_fill,
-            );
-        }
-
-        ui.add_space(8.0); // Space between plots
-        should_remove
     }
 
     fn show_signal(&mut self, ui: &mut egui::Ui, idx: usize) -> Response {
@@ -244,20 +138,116 @@ impl Tplot {
                 }
             });
 
-        // Main area with plots
+        // Show plots as windows in the central area
         egui::CentralPanel::default()
             .show_inside(ui, |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    // Show existing plots
-                    let mut i = 0;
-                    while i < self.plots.len() {
-                        if self.show_plot(ui, i) {
-                            self.plots.remove(i);
-                        } else {
-                            i += 1;
+                let mut plots_to_remove = Vec::new();
+
+                // Create a confined area for the windows
+                egui::Area::new(egui::Id::new("plot_windows_area"))
+                    .constrain(true) // This ensures windows stay within the area
+                    .show(ui.ctx(), |ui| {
+                        for (idx, plot) in self.plots.iter_mut().enumerate() {
+                            let mut open = true;
+                            let window = egui::Window::new(&plot.title)
+                                .open(&mut open)
+                                .default_size([400.0, plot.height])
+                                .resizable(true)
+                                .constrain(true); // This ensures the window stays within its parent area
+
+                            let window = if let Some(pos) = plot.window_pos {
+                                window.current_pos(pos)
+                            } else {
+                                window
+                            };
+
+                            let window = if let Some(size) = plot.window_size {
+                                window.default_size(size)
+                            } else {
+                                window
+                            };
+
+                            window.show(ui.ctx(), |ui| {
+                                // Store window size
+                                plot.window_size = Some(ui.available_size());
+
+                                // Check if something is being dragged
+                                let is_being_dragged = self.dragged_signal.is_some();
+
+                                // Create a frame that will be highlighted when dragging
+                                let frame_stroke = if is_being_dragged {
+                                    Stroke::new(2.0, Color32::YELLOW)
+                                } else {
+                                    Stroke::NONE
+                                };
+
+                                Frame::none().stroke(frame_stroke).show(ui, |ui| {
+                                    // Get available size for the plot
+                                    let available_size = ui.available_size();
+                                    plot.height = available_size.y;
+
+                                    let plot_response = Plot::new(format!("plot_{}", idx))
+                                        .height(available_size.y)
+                                        .width(available_size.x)
+                                        .allow_zoom(true)
+                                        .allow_drag(true)
+                                        .show_axes(true)
+                                        .show_grid(true)
+                                        .legend(egui_plot::Legend::default())
+                                        .show(ui, |plot_ui| {
+                                            for active_signal in &plot.active_signals {
+                                                let signal =
+                                                    &self.signals[active_signal.signal_index];
+                                                plot_ui.line(
+                                                    Line::new(PlotPoints::from_explicit_callback(
+                                                        signal.data_fn,
+                                                        -5.0..5.0,
+                                                        200,
+                                                    ))
+                                                    .color(active_signal.color)
+                                                    .name(&signal.name),
+                                                );
+                                            }
+                                        });
+
+                                    // Make the plot area a drop target and check for hover
+                                    let rect = plot_response.response.rect;
+                                    let is_hovered = rect.contains(
+                                        ui.input(|i| i.pointer.hover_pos().unwrap_or_default()),
+                                    );
+
+                                    // Handle drops
+                                    if is_being_dragged && is_hovered {
+                                        // Show a stronger highlight when hovering during drag
+                                        ui.painter().rect_stroke(
+                                            rect,
+                                            0.0,
+                                            Stroke::new(3.0, Color32::GREEN),
+                                        );
+
+                                        // Check for drops
+                                        if ui.input(|i| i.pointer.any_released()) {
+                                            if let Some(signal_idx) = self.dragged_signal.take() {
+                                                plot.active_signals.push(ActiveSignal {
+                                                    signal_index: signal_idx,
+                                                    color: self.signals[signal_idx].color,
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+
+                            if !open {
+                                plots_to_remove.push(idx);
+                            }
                         }
-                    }
-                });
+                    });
+
+                // Remove closed windows
+                for idx in plots_to_remove.into_iter().rev() {
+                    self.plots.remove(idx);
+                }
 
                 ui.allocate_response(ui.available_size(), egui::Sense::hover())
             })
