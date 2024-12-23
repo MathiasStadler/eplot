@@ -1,4 +1,4 @@
-use egui::{Color32, Response};
+use egui::{Color32, Response, Vec2};
 use egui_plot::{Line, Plot, PlotPoints};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -13,6 +13,7 @@ struct Signal {
 pub(crate) struct Tplot {
     #[serde(skip)]
     signals: Vec<Signal>,
+    plot_height: f32,
 }
 
 impl Default for Signal {
@@ -43,6 +44,7 @@ impl Tplot {
                     data_fn: |x| x.sin(),
                 },
             ];
+            self.plot_height = 300.0;
         }
     }
 
@@ -66,8 +68,8 @@ impl Tplot {
         // Main plot area in central panel
         egui::CentralPanel::default()
             .show_inside(ui, |ui| {
-                Plot::new("signals_plot")
-                    .height(300.0)
+                let plot_response = Plot::new("signals_plot")
+                    .height(self.plot_height)
                     .width(ui.available_width())
                     .allow_zoom(true)
                     .allow_drag(true)
@@ -89,6 +91,37 @@ impl Tplot {
                             }
                         }
                     });
+
+                // Add a resize handle below the plot
+                let resize_id = ui.id().with("resize_handle");
+                let resize_rect = egui::Rect::from_min_size(
+                    plot_response.response.rect.left_bottom() + Vec2::new(0.0, 2.0),
+                    Vec2::new(plot_response.response.rect.width(), 5.0),
+                );
+                let resize_response = ui.interact(resize_rect, resize_id, egui::Sense::drag());
+
+                if resize_response.dragged() {
+                    self.plot_height = (self.plot_height + resize_response.drag_delta().y)
+                        .max(100.0)
+                        .min(ui.available_height());
+                }
+
+                // Draw the resize handle
+                if resize_response.hovered() {
+                    ui.painter().rect_filled(
+                        resize_rect,
+                        0.0,
+                        ui.style().visuals.widgets.active.bg_fill,
+                    );
+                } else {
+                    ui.painter().rect_filled(
+                        resize_rect,
+                        0.0,
+                        ui.style().visuals.widgets.inactive.bg_fill,
+                    );
+                }
+
+                plot_response.response
             })
             .response
     }
