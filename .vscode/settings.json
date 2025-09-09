@@ -9,6 +9,7 @@
         "egui",
         "euxo",
         "evcxr",
+        "filehash",
         "FIXIT",
         "fontconfig",
         "grcov",
@@ -19,6 +20,7 @@
         "libglib",
         "libxcb",
         "libxkbcommon",
+        "lycheecache",
         "nextest",
         "objcopy",
         "objdump",
@@ -32,5 +34,13 @@
         "sccache",
         "winit",
         "xfixes"
-    ]
+    ],
+    "cSpell.customDictionaries": {
+        "custom-dictionary-workspace": {
+            "name": "custom-dictionary-workspace",
+            "path": "${workspaceFolder:eplot}/.cspell/custom-dictionary-workspace.txt",
+            "addWords": true,
+            "scope": "workspace"
+        }
+    }
 }
