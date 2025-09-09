@@ -52,6 +52,26 @@ export WAYLAND_DISPLAY=wayland-0 [![alt text][1]]( https://rerun.io/docs/getting
 export RUSTC_WRAPPER=sccache
 trunk serve
 
+debug1: Local connections to 192.168.178.71:4567 forwarded to remote address 127.0.0.1:8080
+
+ ssh -vvv -L 192.168.178.71:4567:127.0.0.1:8080 trapapa@192.168.178.71
+
+ssh -v -L 192.168.178.71:8080:192.168.178.35:4567 trapapa@192.168.178.35
+
+ssh -v -L 127.0.0.1:8080:192.168.178.35:4567 trapapa@192.168.178.35
+
+netstat -pna | grep 4567
+sudo lsof -t -i tcp:4567
+sudo lsof -t -i tcp:8080
+
+ links = 192.168.178.71
+ right = 192.168.178.35
+
+ ssh -N -f -v -L 8080:127.0.0.1:4567 trapapa@192.168.178.35
+
+https://www.baeldung.com/linux/ssh-tunnel-access-web-pages
+
+ssh -D 8080 username@remote-server
 >[!NOTE]
 >Symbol to mark web external links [![alt text][1]](./README.md)
 <!-- spell-checker: disable  -->

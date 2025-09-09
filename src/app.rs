@@ -39,7 +39,7 @@ impl eframe::App for TplotApp {
 
                 use egui::special_emojis::GITHUB;
                 ui.hyperlink_to(
-                    format!("{GITHUB} egui_plot on GitHub"),
+                    format!("{GITHUB} ee egui_plot on GitHub"),
                     "https://github.com/emilk/egui_plot",
                 );
             });

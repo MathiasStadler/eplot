@@ -32,6 +32,7 @@
         "rustfilt",
         "rustup",
         "sccache",
+        "Tplot",
         "winit",
         "xfixes"
     ],
