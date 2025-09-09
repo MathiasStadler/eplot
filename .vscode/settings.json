@@ -12,11 +12,17 @@
         "FIXIT",
         "fontconfig",
         "grcov",
+        "libatk",
+        "libclang",
+        "libfontconfig",
+        "libfreetype",
+        "libglib",
         "libxcb",
         "libxkbcommon",
         "nextest",
         "objcopy",
         "objdump",
+        "patchelf",
         "pipefail",
         "profdata",
         "readobj",
@@ -24,6 +30,7 @@
         "rustfilt",
         "rustup",
         "sccache",
+        "winit",
         "xfixes"
     ]
 }
