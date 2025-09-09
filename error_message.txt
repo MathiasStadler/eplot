@@ -1,0 +1,13 @@
+Error:
+WinitEventLoop(Os(OsError { 
+    line: 760,
+    file: "/home/trapapa/.cargo/registry/src/index.crates.io-6f17d22bba15001f/winit-0.30.5/src/platform_impl/linux/mod.rs",
+    error: Misc("neither WAYLAND_DISPLAY nor WAYLAND_SOCKET is set; note: enable the `winit/x11` feature to support X11")
+    }
+    )
+    )
+
+    Weder WAYLAND_DISPLAY noch WAYLAND_SOCKET sind eingestellt
+
+    Weder WAYLAND_DISPLAY noch WAYLAND_SOCKET sind festgelegt; 
+    Hinweis: Aktivieren Sie die Funktion "Winit/X11", um X11 zu unterstützen

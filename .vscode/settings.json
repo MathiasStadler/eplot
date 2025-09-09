@@ -1,6 +1,29 @@
 {
     "cSpell.words": [
+        "bangbang",
+        "binutils",
+        "ccache",
+        "debuginfo",
+        "devel",
         "eframe",
-        "egui"
+        "egui",
+        "euxo",
+        "evcxr",
+        "FIXIT",
+        "fontconfig",
+        "grcov",
+        "libxcb",
+        "libxkbcommon",
+        "nextest",
+        "objcopy",
+        "objdump",
+        "pipefail",
+        "profdata",
+        "readobj",
+        "rustc",
+        "rustfilt",
+        "rustup",
+        "sccache",
+        "xfixes"
     ]
 }
