@@ -7,6 +7,7 @@
         "devel",
         "eframe",
         "egui",
+        "eplot",
         "euxo",
         "evcxr",
         "filehash",
